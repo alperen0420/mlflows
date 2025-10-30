@@ -1,0 +1,18 @@
+aliases: []
+creation_timestamp: 1760085502775
+current_stage: None
+deployment_job_state: null
+description: ''
+last_updated_timestamp: 1760085502775
+metrics: null
+model_id: m-8bf1ff6a8429478a8067c1f3ed649ba6
+name: student regressor
+params: null
+run_id: 2290eeade2f2436a9f6f61baea463dc6
+run_link: ''
+source: file:///C:/Users/Alperen/Desktop/SE/mlflows/mlruns/715773924644871984/models/m-8bf1ff6a8429478a8067c1f3ed649ba6/artifacts
+status: READY
+status_message: null
+storage_location: file:///C:/Users/Alperen/Desktop/SE/mlflows/mlruns/715773924644871984/models/m-8bf1ff6a8429478a8067c1f3ed649ba6/artifacts
+user_id: null
+version: 1

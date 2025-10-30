@@ -1,0 +1,10 @@
+artifact_location: file:///C:/Users/Alperen/Desktop/SE/mlflows/mlruns/715773924644871984/models/m-8bf1ff6a8429478a8067c1f3ed649ba6/artifacts
+creation_timestamp: 1760084899395
+experiment_id: '715773924644871984'
+last_updated_timestamp: 1760084902143
+model_id: m-8bf1ff6a8429478a8067c1f3ed649ba6
+model_type: null
+name: model
+source_run_id: 2290eeade2f2436a9f6f61baea463dc6
+status: 2
+status_message: null

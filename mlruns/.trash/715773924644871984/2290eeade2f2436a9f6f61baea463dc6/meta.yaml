@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Alperen/Desktop/SE/mlflows/mlruns/715773924644871984/2290eeade2f2436a9f6f61baea463dc6/artifacts
+deleted_time: 1760618804744
+end_time: 1760084902156
+entry_point_name: ''
+experiment_id: '715773924644871984'
+lifecycle_stage: deleted
+run_id: 2290eeade2f2436a9f6f61baea463dc6
+run_name: baseline-random-forest
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1760084899198
+status: 3
+tags: []
+user_id: Alperen

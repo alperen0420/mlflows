@@ -1,0 +1,14 @@
+*mlflow ui:
+python -m mlflow ui `
+  --backend-store-uri sqlite:///C:/Users/Alperen/Desktop/SE/mlflows/experiments.mlflow.db `
+  --default-artifact-root file:///C:/Users/Alperen/Desktop/SE/mlflows/mlruns `
+  --host 127.0.0.1 `
+  --port 5000
+
+*main:
+python main.py --use-mlflow-sqlite
+
+* aynı zamanda vscodede takip edilebilir.
+
+* activate venv:
+. .\.venv\Scripts\Activate.ps1
