@@ -12,3 +12,6 @@ python main.py --use-mlflow-sqlite
 
 * activate venv:
 . .\.venv\Scripts\Activate.ps1
+
+* jenikns pwd:
+1317f9da85cb4322bf38b80e93a69234
