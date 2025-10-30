@@ -86,7 +86,7 @@ pipeline {
                             $py = Join-Path $venv "Scripts\\python.exe"
                             $db = Join-Path $env:WORKSPACE "experiments.db"
                             $mlflowDb = Join-Path $env:WORKSPACE "experiments.mlflow.db"
-                            $mlflowUri = "sqlite:///" + ($mlflowDb -replace '\\', '/')
+                            $mlflowUri = "sqlite:///" + ($mlflowDb.Replace('\\', '/'))
                             & $py main.py --mlflow-tracking-uri $mlflowUri --db-path $db
                         '''
                     }
@@ -111,7 +111,7 @@ pipeline {
                             $py = Join-Path $venv "Scripts\\python.exe"
                             $db = Join-Path $env:WORKSPACE "experiments.db"
                             $mlflowDb = Join-Path $env:WORKSPACE "experiments.mlflow.db"
-                            $mlflowUri = "sqlite:///" + ($mlflowDb -replace '\\', '/')
+                            $mlflowUri = "sqlite:///" + ($mlflowDb.Replace('\\', '/'))
                             & $py retrain.py --mlflow-tracking-uri $mlflowUri --db-path $db --reuse-mlflow-uri
                         '''
                     }

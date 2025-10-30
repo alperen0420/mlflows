@@ -1,3 +1,7 @@
+* jenkins başlat:
+net start "Jenkins"
+
+
 *mlflow ui:
 python -m mlflow ui `
   --backend-store-uri sqlite:///C:/Users/Alperen/Desktop/SE/mlflows/experiments.mlflow.db `
