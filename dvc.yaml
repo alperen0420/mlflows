@@ -8,11 +8,7 @@ stages:
       - retrain.py
       - training_utils.py
     outs:
-      - path: mlruns
-        cache: false
-      - path: experiments.db
-        cache: false
-      - path: experiments.mlflow.db
-        cache: false
-      - path: .data/student-mat.csv
-        cache: false
+      - mlruns
+      - experiments.db
+      - experiments.mlflow.db
+      - .data/student-mat.csv
