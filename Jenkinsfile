@@ -118,6 +118,47 @@ pipeline {
                 }
             }
         }
+
+        stage('DVC Snapshot') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            VENV="${WORKSPACE}/.venv"
+                            . "$VENV/bin/activate"
+                            if [ ! -d ".dvc" ]; then
+                                dvc init -q
+                            fi
+                            dvc repro
+                            git config user.name "Jenkins CI"
+                            git config user.email "jenkins@example.com"
+                            if [ -f dvc.lock ] && ! git diff --quiet -- dvc.lock; then
+                                git add dvc.lock
+                                git commit -m "ci: update dvc lock [skip ci]" || true
+                            fi
+                        '''
+                    } else {
+                        powershell '''
+                            $venv = Join-Path $env:WORKSPACE ".venv"
+                            $py = Join-Path $venv "Scripts\\python.exe"
+                            if (-not (Test-Path ".dvc")) {
+                                & $py -m dvc init -q
+                            }
+                            & $py -m dvc repro
+                            git config user.name "Jenkins CI"
+                            git config user.email "jenkins@example.com"
+                            if (Test-Path "dvc.lock") {
+                                git diff --quiet -- dvc.lock
+                                if ($LASTEXITCODE -ne 0) {
+                                    git add dvc.lock
+                                    git commit -m "ci: update dvc lock [skip ci]" | Out-Null
+                                }
+                            }
+                        '''
+                    }
+                }
+            }
+        }
     }
 
     post {
