@@ -12,6 +12,7 @@ from experiment_db import (
     connect,
     fetch_experiment_by_id,
     fetch_latest_experiment,
+    insert_dataset_split,
     insert_experiment,
 )
 from reporting import log_regression_artifacts
@@ -189,7 +190,7 @@ def main() -> None:
         }
 
         with connect(str(db_path)) as conn:
-            insert_experiment(
+            new_experiment_id = insert_experiment(
                 conn,
                 model_type=record["model_type"],
                 hyperparameters=hyperparameters,
@@ -200,11 +201,26 @@ def main() -> None:
                 data_source=data_source,
                 notes=args.notes or f"Retrained from experiment {record['id']}",
             )
+            insert_dataset_split(
+                conn,
+                experiment_id=new_experiment_id,
+                split="train",
+                features_rows=X_train.reset_index(drop=True).to_dict(orient="records"),
+                target_values=y_train.reset_index(drop=True).tolist(),
+            )
+            insert_dataset_split(
+                conn,
+                experiment_id=new_experiment_id,
+                split="test",
+                features_rows=X_test.reset_index(drop=True).to_dict(orient="records"),
+                target_values=y_test.reset_index(drop=True).tolist(),
+            )
 
     print(
         json.dumps(
             {
                 "origin_experiment_id": record["id"],
+                "new_experiment_id": new_experiment_id,
                 "mlflow_run_id": run.info.run_id,
                 "metrics": metrics,
                 "tracking_uri": mlflow.get_tracking_uri(),

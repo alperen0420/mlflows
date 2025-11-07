@@ -2,7 +2,7 @@ import json
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timezone
-from typing import Dict, Iterator, Optional
+from typing import Dict, Iterator, Optional, Sequence
 
 
 EXPERIMENT_TABLE_DDL = """
@@ -20,10 +20,27 @@ CREATE TABLE IF NOT EXISTS experiments (
 );
 """
 
+DATASET_TABLE_DDL = """
+CREATE TABLE IF NOT EXISTS dataset_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    experiment_id INTEGER NOT NULL,
+    split TEXT NOT NULL,
+    row_index INTEGER NOT NULL,
+    features TEXT NOT NULL,
+    target REAL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (experiment_id) REFERENCES experiments(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_dataset_experiment_split
+ON dataset_snapshots (experiment_id, split);
+"""
+
 
 def ensure_tables(conn: sqlite3.Connection) -> None:
-    """Create the experiments table if it is missing."""
-    conn.execute(EXPERIMENT_TABLE_DDL)
+    """Create required tables if they are missing."""
+    conn.executescript(EXPERIMENT_TABLE_DDL)
+    conn.executescript(DATASET_TABLE_DDL)
 
 
 def _json_dumps(data: Dict) -> str:
@@ -130,3 +147,60 @@ def connect(db_path: str) -> Iterator[sqlite3.Connection]:
         yield conn
     finally:
         conn.close()
+
+
+def _to_builtin(value):
+    """Convert numpy/pandas scalars to builtin Python types for JSON serialization."""
+    if isinstance(value, (int, float, str, bool)) or value is None:
+        return value
+    if hasattr(value, "item"):
+        try:
+            return value.item()
+        except Exception:  # pragma: no cover - fallback for exotic types
+            return str(value)
+    return str(value)
+
+
+def insert_dataset_split(
+    conn: sqlite3.Connection,
+    *,
+    experiment_id: int,
+    split: str,
+    features_rows: Sequence[Dict],
+    target_values: Sequence,
+) -> int:
+    """Persist the dataset rows used for training/testing."""
+    ensure_tables(conn)
+    created_at = datetime.now(timezone.utc).isoformat()
+    payload = []
+    for position, (feature_row, target_value) in enumerate(
+        zip(features_rows, target_values)
+    ):
+        clean_row = {key: _to_builtin(val) for key, val in feature_row.items()}
+        payload.append(
+            (
+                experiment_id,
+                split,
+                position,
+                _json_dumps(clean_row),
+                _to_builtin(target_value),
+                created_at,
+            )
+        )
+
+    conn.executemany(
+        """
+        INSERT INTO dataset_snapshots (
+            experiment_id,
+            split,
+            row_index,
+            features,
+            target,
+            created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        payload,
+    )
+    conn.commit()
+    return len(payload)

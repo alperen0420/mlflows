@@ -7,7 +7,7 @@ import mlflow.sklearn
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
-from experiment_db import connect, insert_experiment
+from experiment_db import connect, insert_dataset_split, insert_experiment
 from reporting import log_regression_artifacts
 from training_utils import (
     DATA_URL,
@@ -170,6 +170,20 @@ def main() -> None:
                 metrics=metrics,
                 data_source=DATA_URL,
                 notes=args.notes,
+            )
+            insert_dataset_split(
+                conn,
+                experiment_id=experiment_id,
+                split="train",
+                features_rows=X_train.reset_index(drop=True).to_dict(orient="records"),
+                target_values=y_train.reset_index(drop=True).tolist(),
+            )
+            insert_dataset_split(
+                conn,
+                experiment_id=experiment_id,
+                split="test",
+                features_rows=X_test.reset_index(drop=True).to_dict(orient="records"),
+                target_values=y_test.reset_index(drop=True).tolist(),
             )
 
     print(

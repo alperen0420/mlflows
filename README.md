@@ -1,11 +1,11 @@
 # Student Performance Regression Project
 
-This project trains a regression model on the UCI student performance dataset, logs experiments to MLflow and stores metadata in SQLite. Two entrypoints are provided:
+This project trains a regression model on the UCI student performance dataset, logs experiments to MLflow and stores both experiment metadata *and the exact train/test rows* inside SQLite. Two entrypoints are provided:
 
 - `main.py`: trains a model with predefined hyperparameters, logs results to MLflow, and records metadata in `experiments.db`.
 - `retrain.py`: reloads the latest (or specified) experiment configuration from SQLite and re-runs training, logging a new MLflow run.
 
-Artifacts such as diagnostic plots and prediction tables are uploaded to MLflow under the `analysis/` artifact folder.
+Artifacts such as diagnostic plots, prediction tables, and feature importance CSVs are uploaded to MLflow under the `analysis/` artifact folder, while the underlying dataset rows used for each split are mirrored in the `dataset_snapshots` table of `experiments.db`.
 
 ## Jenkins Integration
 
@@ -25,7 +25,7 @@ Both MLflow artifact directories (`mlruns/**`) and SQLite databases (`*.db`) are
 - Ability to create virtual environments (`venv`).
 - Network access to download the dataset on the first run.
 
-If the agent runs on Windows, convert the shell steps in the `Jenkinsfile` to PowerShell equivalents and adjust virtual environment activation paths (`.\\${VENV}\\Scripts\\Activate.ps1`).
+If the agent runs on Windows the provided pipeline already switches to PowerShell, creates the venv in `%WORKSPACE%\.venv`, and normalizes MLflow URIs (see the `isUnix()` checks inside `Jenkinsfile`).
 
 ## Manual Usage
 
@@ -56,3 +56,25 @@ python -m mlflow ui \
   --backend-store-uri sqlite:///$(pwd)/experiments.mlflow.db \
   --default-artifact-root file://$(pwd)/mlruns
 ```
+
+Windows PowerShell eşdeğeri:
+
+```powershell
+python -m mlflow ui `
+  --backend-store-uri sqlite:///$(Get-Location)/experiments.mlflow.db `
+  --default-artifact-root file:///(Get-Location)/mlruns
+```
+
+## Veriyi ve Modelleri GitHub/DVC ile Paylaşma
+
+- `.data/student-mat.csv`, `experiments*.db` ve `mlruns/` artık **Git tarafından izleniyor**; Jenkins veya yerel çalıştırma sonrası oluşan verileri doğrudan commit & push edebilirsin.
+- `dvc.yaml` içindeki `train` stage’i, `main.py --use-mlflow-sqlite` komutunu tanımlar ve çıktıları `outs-no-cache` olarak işaretler. Böylece dosyalar workspace’de kalırken DVC metadata’sı Git’e eklenir.
+- DVC kullanımı için örnek:
+  ```bash
+  dvc init
+  dvc repro
+  git add dvc.yaml dvc.lock .dvc/ .data mlruns experiments*.db
+  git commit -m "Track data and ML artifacts"
+  git push
+  ```
+- Bu sayede hem data hem de MLflow’un ürettiği derlenmiş modeller GitHub üzerinde saklanır; başka bir kullanıcı depoyu çekip `dvc repro` ya da doğrudan `python main.py` komutuyla aynı sonuçları alabilir.
