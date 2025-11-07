@@ -1,8 +1,0 @@
-artifact_location: file:///C:/Users/Alperen/Desktop/SE/mlflows/mlruns/715773924644871984
-creation_time: 1760084898834
-experiment_id: '715773924644871984'
-last_update_time: 1760618804744
-lifecycle_stage: deleted
-name: student-performance-regression
-tags:
-  mlflow.experimentKind: custom_model_development
