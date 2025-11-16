@@ -1,0 +1,43 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: python main.py --use-mlflow-sqlite
+    deps:
+    - path: experiment_db.py
+      hash: md5
+      md5: 3e540d2486ba1f2dd60477276f4cec1b
+      size: 5915
+    - path: main.py
+      hash: md5
+      md5: adf2c341d28fc4062cc60824763ac361
+      size: 6663
+    - path: reporting.py
+      hash: md5
+      md5: 59e5e6bb821ebb5f6545802c83b07ca7
+      size: 6228
+    - path: retrain.py
+      hash: md5
+      md5: 668ae795c7b161af19398ba4ccc2efba
+      size: 7597
+    - path: training_utils.py
+      hash: md5
+      md5: 4455e1f317fc3761989fcea15a54a570
+      size: 2772
+    outs:
+    - path: .data/student-mat.csv
+      hash: md5
+      md5: 4dc304be95c60de6ee13fb8769469dd7
+      size: 56993
+    - path: experiments.db
+      hash: md5
+      md5: d3e672a630ddf822e03328ffeabb328b
+      size: 262144
+    - path: experiments.mlflow.db
+      hash: md5
+      md5: 607038d316d3d840b593e33e15dd2112
+      size: 450560
+    - path: mlruns
+      hash: md5
+      md5: 414bc0ec9ee26c42414f5bf546c3510d.dir
+      size: 2322910
+      nfiles: 13
