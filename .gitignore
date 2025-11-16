@@ -3,3 +3,4 @@ __pycache__/
 mlruns/
 experiments.db*
 experiments.mlflow.db*
+.data/student-mat.csv
