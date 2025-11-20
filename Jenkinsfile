@@ -56,13 +56,13 @@ pipeline {
                         sh '''
                             VENV="${WORKSPACE}/.venv"
                             . "$VENV/bin/activate"
-                            python -m compileall main.py retrain.py reporting.py experiment_db.py training_utils.py
+                            python -m compileall main.py retrain.py reporting.py experiment_db.py training_utils.py security_checks.py
                         '''
                     } else {
                         powershell '''
                             $venv = Join-Path $env:WORKSPACE ".venv"
                             $py = Join-Path $venv "Scripts\\python.exe"
-                            & $py -m compileall main.py retrain.py reporting.py experiment_db.py training_utils.py
+                            & $py -m compileall main.py retrain.py reporting.py experiment_db.py training_utils.py security_checks.py
                         '''
                     }
                 }
@@ -113,6 +113,38 @@ pipeline {
                             $mlflowDb = Join-Path $env:WORKSPACE "experiments.mlflow.db"
                             $mlflowUri = "sqlite:///" + ($mlflowDb.Replace('\\', '/'))
                             & $py retrain.py --mlflow-tracking-uri $mlflowUri --db-path $db --reuse-mlflow-uri
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('MLSecOps Audit') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            VENV="${WORKSPACE}/.venv"
+                            . "$VENV/bin/activate"
+                            python security_checks.py \
+                                --dataset ".data/student-mat.csv" \
+                                --baseline "security_baseline.json" \
+                                --experiments-db "${WORKSPACE}/experiments.db" \
+                                --mlruns "${WORKSPACE}/mlruns" \
+                                --model-signatures "model_signatures.json" \
+                                --report-path "${WORKSPACE}/security_report.json"
+                        '''
+                    } else {
+                        powershell '''
+                            $venv = Join-Path $env:WORKSPACE ".venv"
+                            $py = Join-Path $venv "Scripts\\python.exe"
+                            & $py security_checks.py `
+                                --dataset .data\\student-mat.csv `
+                                --baseline security_baseline.json `
+                                --experiments-db (Join-Path $env:WORKSPACE "experiments.db") `
+                                --mlruns (Join-Path $env:WORKSPACE "mlruns") `
+                                --model-signatures model_signatures.json `
+                                --report-path (Join-Path $env:WORKSPACE "security_report.json")
                         '''
                     }
                 }

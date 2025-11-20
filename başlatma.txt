@@ -19,3 +19,6 @@ python main.py --use-mlflow-sqlite
 
 * jenikns pwd:
 1317f9da85cb4322bf38b80e93a69234
+
+* güvenlik:
+python security_checks.py --dataset .data/student-mat.csv --baseline security_baseline.json --experiments-db experiments.db --mlruns mlruns --model-signatures model_signatures.json --report-path security_report.json
