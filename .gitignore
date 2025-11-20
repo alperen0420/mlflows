@@ -1,7 +1,30 @@
 .venv/
 __pycache__/
+.mypy_cache/
+.pytest_cache/
+*.pyc
+*.pyo
+
+# ML artifacts & data managed by DVC/MLflow
 mlruns/
 experiments.db*
 experiments.mlflow.db*
 .data/student-mat.csv
-/mlruns
+.data/student.zip
+model_signatures.json
+security_baseline.json
+security_report.json
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+Desktop.ini
+
+# Jenkins / CI temps
+*.coverage
+.coverage
+coverage.xml
+
+başlatma.txt
