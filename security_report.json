@@ -1,0 +1,140 @@
+{
+  "generated_at": "2025-11-20T12:23:19.615591+00:00",
+  "dataset": {
+    "path": ".data\\student-mat.csv",
+    "sha256": "e47f9ee225e1ee6e69b7564e6dac7123e80b8486677fe111f351964cef5dec80",
+    "tolerance_pct": 15.0,
+    "stats": {
+      "age": {
+        "mean": 16.696202531645568,
+        "std": 1.2744264570480206,
+        "min": 15.0,
+        "max": 22.0
+      },
+      "Medu": {
+        "mean": 2.749367088607595,
+        "std": 1.0933485225801665,
+        "min": 0.0,
+        "max": 4.0
+      },
+      "Fedu": {
+        "mean": 2.5215189873417723,
+        "std": 1.0868222038604283,
+        "min": 0.0,
+        "max": 4.0
+      },
+      "traveltime": {
+        "mean": 1.4481012658227848,
+        "std": 0.6966212779804437,
+        "min": 1.0,
+        "max": 4.0
+      },
+      "studytime": {
+        "mean": 2.0354430379746837,
+        "std": 0.8381773436532126,
+        "min": 1.0,
+        "max": 4.0
+      },
+      "failures": {
+        "mean": 0.3341772151898734,
+        "std": 0.7427090467258678,
+        "min": 0.0,
+        "max": 3.0
+      },
+      "famrel": {
+        "mean": 3.9443037974683546,
+        "std": 0.8955228775206105,
+        "min": 1.0,
+        "max": 5.0
+      },
+      "freetime": {
+        "mean": 3.2354430379746835,
+        "std": 0.9975968560804794,
+        "min": 1.0,
+        "max": 5.0
+      },
+      "goout": {
+        "mean": 3.108860759493671,
+        "std": 1.1118680681021673,
+        "min": 1.0,
+        "max": 5.0
+      },
+      "Dalc": {
+        "mean": 1.481012658227848,
+        "std": 0.8896131927704095,
+        "min": 1.0,
+        "max": 5.0
+      },
+      "Walc": {
+        "mean": 2.2911392405063293,
+        "std": 1.2862653104886688,
+        "min": 1.0,
+        "max": 5.0
+      },
+      "health": {
+        "mean": 3.5544303797468353,
+        "std": 1.3885423983402392,
+        "min": 1.0,
+        "max": 5.0
+      },
+      "absences": {
+        "mean": 5.708860759493671,
+        "std": 7.99295876640006,
+        "min": 0.0,
+        "max": 75.0
+      },
+      "G1": {
+        "mean": 10.90886075949367,
+        "std": 3.3149904967088983,
+        "min": 3.0,
+        "max": 19.0
+      },
+      "G2": {
+        "mean": 10.713924050632912,
+        "std": 3.756740243888906,
+        "min": 0.0,
+        "max": 19.0
+      },
+      "G3": {
+        "mean": 10.415189873417722,
+        "std": 4.57563964146053,
+        "min": 0.0,
+        "max": 20.0
+      }
+    },
+    "last_updated": "2025-11-20T12:23:19.606592+00:00"
+  },
+  "controls": [
+    {
+      "control": "dataset_integrity",
+      "description": "Verify dataset hash and statistical profile to detect poisoning or tampering.",
+      "owasp": "ML01 Data Poisoning",
+      "mitre": [
+        "ATLAS.TA0001 Initial Access",
+        "ATLAS.T1546 Poison Training Data"
+      ],
+      "status": "passed",
+      "timestamp": "2025-11-20T12:23:19.606592+00:00"
+    },
+    {
+      "control": "experiment_store",
+      "description": "Ensure dataset snapshots exist for both splits to defend supply-chain attacks.",
+      "owasp": "ML06 Supply-Chain Vulnerability",
+      "mitre": [
+        "ATLAS.T1521 Manipulate ML Supply Chain"
+      ],
+      "status": "passed",
+      "timestamp": "2025-11-20T12:23:19.615591+00:00"
+    },
+    {
+      "control": "model_signatures",
+      "description": "Validate MLflow model artifacts via SHA-256 signatures.",
+      "owasp": "ML05 Model Theft",
+      "mitre": [
+        "ATLAS.T1600 Exfiltration of ML Assets"
+      ],
+      "status": "verified",
+      "timestamp": "2025-11-20T12:23:19.615591+00:00"
+    }
+  ]
+}
