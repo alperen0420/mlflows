@@ -160,7 +160,11 @@ pipeline {
                             export HF_HOME="${WORKSPACE}/.cache/huggingface"
                             . "$VENV/bin/activate"
                             mkdir -p garak_reports
-                            python -m garak --config garak_config.yaml --report_prefix garak_reports/scan
+                            python -m garak \
+                                --config garak_config.yaml \
+                                --target huggingface:distilgpt2 \
+                                --probes promptinject,jailbreak,repetition \
+                                --report garak_reports/scan.jsonl
                         '''
                     } else {
                         powershell '''
@@ -169,8 +173,12 @@ pipeline {
                             $env:HF_HOME = Join-Path $env:WORKSPACE ".cache\\huggingface"
                             $outDir = Join-Path $env:WORKSPACE "garak_reports"
                             if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir | Out-Null }
-                            $outPrefix = Join-Path $outDir "scan"
-                            & $py -m garak --config garak_config.yaml --report_prefix $outPrefix
+                            $outFile = Join-Path $outDir "scan.jsonl"
+                            & $py -m garak `
+                                --config garak_config.yaml `
+                                --target huggingface:distilgpt2 `
+                                --probes promptinject,jailbreak,repetition `
+                                --report $outFile
                         '''
                     }
                 }
