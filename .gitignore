@@ -7,6 +7,9 @@ __pycache__/
 
 # ML artifacts & data managed by DVC/MLflow
 mlruns/
+garak_reports/
+.cache/
+*.safetensors
 experiments.db*
 experiments.mlflow.db*
 .data/student-mat.csv
@@ -14,7 +17,6 @@ experiments.mlflow.db*
 model_signatures.json
 security_baseline.json
 security_report.json
-garak_reports/
 
 # IDE / OS
 .vscode/
