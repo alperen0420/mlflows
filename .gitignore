@@ -14,6 +14,7 @@ experiments.mlflow.db*
 model_signatures.json
 security_baseline.json
 security_report.json
+garak_reports/
 
 # IDE / OS
 .vscode/

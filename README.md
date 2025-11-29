@@ -63,6 +63,24 @@ python -m mlflow ui `
 
 With this setup you can reproduce any experiment (via MLflow artifacts + dataset snapshots), track data/model versions through DVC, and keep Jenkins as the single source of truth for automated runs.
 
+## Basit LLM + Garak Entegrasyonu
+
+Rehberde önerilen ek güvenlik testleri için basit bir LLM ekledik ve Garak ile saldırı senaryolarını tarayabilecek bir yapı sunduk:
+
+- `llm_service.py`: HuggingFace `distilgpt2` modelini kullanarak hızlı metin üretimi yapar. Örnek:
+  ```bash
+  python llm_service.py --prompt "Güvenli kodlama önerileri nedir?" --max-new-tokens 64
+  ```
+  (İlk çalıştırmada model indirileceği için birkaç dakika sürebilir.)
+
+- `garak_config.yaml`: Garak için örnek konfigürasyon; `huggingface:distilgpt2` modeli ve `promptinject`, `jailbreak`, `repetition` tarayıcılarıyla çalışır. Örnek kullanım:
+  ```bash
+  garak -c garak_config.yaml
+  ```
+  Sonuçlar `garak_reports/` klasörüne JSONL olarak yazılır; bu raporu MLflow run’ına ekleyebilir veya hocaya güvenlik testi çıktısı olarak sunabilirsiniz.
+
+> Not: Bu LLM ve Garak entegrasyonu mevcut tabular modelden bağımsızdır; temel amaç, güvenlik test aracını projeye dahil edip rapor üretebilmektir. CI’ye eklemek isterseniz, Garak taramasını manuel tetikleyip üretilen raporu arşivleyebilirsiniz.
+
 ## MLSecOps (Güvenlik) Entegrasyonu
 
 `security_checks.py`, `security_baseline.json`, `model_signatures.json` ve Jenkins’teki MLSecOps Audit stage’i, “MLSecOps – Yapay Zeka Mühendisleri İçin Kapsamlı Güvenlik Operasyonları Rehberi”nde tarif edilen OWASP ML Top 10 + MITRE ATLAS tehditlerine karşı aşağıdaki kontrolleri uygular:
