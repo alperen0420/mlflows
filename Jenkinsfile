@@ -160,7 +160,12 @@ pipeline {
                             export HF_HOME="${WORKSPACE}/.cache/huggingface"
                             . "$VENV/bin/activate"
                             mkdir -p garak_reports
-                            python -m garak --config garak_config.yaml --skip_unknown
+                            python -m garak \
+                              --target_type huggingface \
+                              --target_name distilgpt2 \
+                              --probes promptinject \
+                              --report_prefix garak_reports/scan \
+                              --seed "jenkins-security-scan"
                         '''
                     } else {
                         powershell '''
@@ -169,7 +174,12 @@ pipeline {
                             $env:HF_HOME = Join-Path $env:WORKSPACE ".cache\\huggingface"
                             $outDir = Join-Path $env:WORKSPACE "garak_reports"
                             if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir | Out-Null }
-                            & $py -m garak --config garak_config.yaml --skip_unknown
+                            & $py -m garak `
+                              --target_type huggingface `
+                              --target_name distilgpt2 `
+                              --probes promptinject `
+                              --report_prefix (Join-Path $outDir "scan") `
+                              --seed "jenkins-security-scan"
                         '''
                     }
                 }
