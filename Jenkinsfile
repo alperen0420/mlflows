@@ -159,14 +159,17 @@ pipeline {
                             VENV="${WORKSPACE}/.venv"
                             export HF_HOME="${WORKSPACE}/.cache/huggingface"
                             . "$VENV/bin/activate"
-                            python -m garak --config garak_config.yaml --output_dir garak_reports --report jsonl
+                            mkdir -p garak_reports
+                            python -m garak --config garak_config.yaml --report jsonl --report_prefix garak_reports/scan
                         '''
                     } else {
                         powershell '''
                             $venv = Join-Path $env:WORKSPACE ".venv"
                             $py = Join-Path $venv "Scripts\\python.exe"
                             $env:HF_HOME = Join-Path $env:WORKSPACE ".cache\\huggingface"
-                            & $py -m garak --config garak_config.yaml --output_dir garak_reports --report jsonl
+                            $outDir = Join-Path $env:WORKSPACE "garak_reports"
+                            if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir | Out-Null }
+                            & $py -m garak --config garak_config.yaml --report jsonl --report_prefix (Join-Path $outDir "scan")
                         '''
                     }
                 }
