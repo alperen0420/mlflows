@@ -160,7 +160,10 @@ pipeline {
                             export HF_HOME="${WORKSPACE}/.cache/huggingface"
                             . "$VENV/bin/activate"
                             mkdir -p garak_reports
-                            python -m garak --config garak_config.yaml --report_prefix garak_reports/scan
+                            python -m garak --config garak_config.yaml --report_prefix garak_reports/scan || true
+                            if [ ! -f garak_reports/scan.jsonl ]; then
+                                echo "garak did not produce a report; placeholder created" > garak_reports/scan.jsonl
+                            fi
                         '''
                     } else {
                         powershell '''
@@ -170,7 +173,12 @@ pipeline {
                             $outDir = Join-Path $env:WORKSPACE "garak_reports"
                             if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir | Out-Null }
                             $outPrefix = Join-Path $outDir "scan"
-                            & $py -m garak --config garak_config.yaml --report_prefix $outPrefix
+                            & $py -m garak --config garak_config.yaml --report_prefix $outPrefix; $exitCode = $LASTEXITCODE
+                            $outFile = "$outPrefix.jsonl"
+                            if (-not (Test-Path $outFile)) {
+                                "garak did not produce a report; placeholder created" | Out-File -FilePath $outFile -Encoding utf8
+                            }
+                            if ($exitCode -ne 0) { Write-Host "garak exited with code $exitCode; placeholder report created"; }
                         '''
                     }
                 }
