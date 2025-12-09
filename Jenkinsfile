@@ -288,7 +288,10 @@ pipeline {
                             $venv = Join-Path $env:WORKSPACE ".venv"
                             $py = Join-Path $venv "Scripts\\python.exe"
                             & $py -m pip install --upgrade cyclonedx-bom
-                            & $py -m cyclonedx_py --output sbom.json --requirements requirements.txt
+                            # Windows shim yoksa .bat üzerinden çalıştır
+                            $bat = Join-Path $venv "Scripts\\cyclonedx-bom.bat"
+                            if (-not (Test-Path $bat)) { $bat = "cyclonedx-bom" }
+                            & $bat -o sbom.json -t requirements -i requirements.txt
                         '''
                     }
                 }
