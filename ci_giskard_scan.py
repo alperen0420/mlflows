@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Dict
@@ -16,6 +17,14 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from training_utils import TARGET_COLUMN, build_pipeline, load_student_performance_dataset
+
+# Force UTF-8 to avoid Windows charmap issues with emojis/logs.
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
+    except Exception:
+        pass
 
 
 def load_dataset(path_or_url: str) -> pd.DataFrame:
@@ -119,30 +128,47 @@ def main() -> None:
 
     try:
         result = scan(model=model, dataset=dataset)
+    except Exception as exc:  # pylint: disable=broad-except
+        json_path.write_text(
+            json.dumps({"error": f"scan_failed: {exc}"}, indent=2),
+            encoding="utf-8",
+        )
+        html_path.write_text(
+            f"<html><body>Giskard scan failed during scan(): {exc}</body></html>",
+            encoding="utf-8",
+        )
+        print(f"[Giskard] scan() failed: {exc}", file=sys.stderr)
+        return
+
+    # Export JSON
+    try:
         if hasattr(result, "to_json"):
             result.to_json(json_path)
         else:
             json_path.write_text(json.dumps(result, default=str, indent=2), encoding="utf-8")
+    except Exception as exc:  # pylint: disable=broad-except
+        json_path.write_text(
+            json.dumps({"error": f"export_json_failed: {exc}"}, indent=2),
+            encoding="utf-8",
+        )
+        print(f"[Giskard] to_json failed: {exc}", file=sys.stderr)
 
+    # Export HTML
+    try:
         if hasattr(result, "to_html"):
             result.to_html(html_path)
         elif hasattr(result, "to_html_file"):
             result.to_html_file(html_path)
         else:
             html_path.write_text("<html><body>No HTML exporter available</body></html>", encoding="utf-8")
-
-        print(f"[Giskard] Reports saved under {output_dir.resolve()}")
     except Exception as exc:  # pylint: disable=broad-except
-        json_path.write_text(
-            json.dumps({"error": str(exc)}, indent=2),
-            encoding="utf-8",
-        )
         html_path.write_text(
-            f"<html><body>Giskard scan failed: {exc}</body></html>",
+            f"<html><body>Giskard HTML export failed: {exc}</body></html>",
             encoding="utf-8",
         )
-        print(f"[Giskard] Scan failed, details written to {json_path}", file=sys.stderr)
-        sys.exit(1)
+        print(f"[Giskard] HTML export failed: {exc}", file=sys.stderr)
+
+    print(f"[Giskard] Reports saved under {output_dir.resolve()}")
 
 
 if __name__ == "__main__":
