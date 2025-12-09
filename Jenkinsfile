@@ -282,14 +282,14 @@ pipeline {
                             VENV="${WORKSPACE}/.venv"
                             PY="$VENV/bin/python"
                             . "$VENV/bin/activate"
-                            "$PY" -m cyclonedx_py --requirements requirements.txt --output sbom.json --format json
+                            "$PY" -m cyclonedx_py requirements --requirements requirements.txt --output sbom.json --format json
                         '''
                     } else {
                         powershell '''
                             $venv = Join-Path $env:WORKSPACE ".venv"
                             $py = Join-Path $venv "Scripts\\python.exe"
                             & $py -m pip install --upgrade cyclonedx-bom
-                            & $py -m cyclonedx_py --requirements requirements.txt --output sbom.json --format json
+                            & $py -m cyclonedx_py requirements --requirements requirements.txt --output sbom.json --format json
                         '''
                     }
                 }
