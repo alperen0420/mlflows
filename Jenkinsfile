@@ -280,18 +280,16 @@ pipeline {
                     if (isUnix()) {
                         sh '''
                             VENV="${WORKSPACE}/.venv"
+                            PY="$VENV/bin/python"
                             . "$VENV/bin/activate"
-                            cyclonedx-bom -o sbom.json -t requirements -i requirements.txt
+                            "$PY" -m cyclonedx_py requirements -o sbom.json -r requirements.txt
                         '''
                     } else {
                         powershell '''
                             $venv = Join-Path $env:WORKSPACE ".venv"
                             $py = Join-Path $venv "Scripts\\python.exe"
                             & $py -m pip install --upgrade cyclonedx-bom
-                            # Windows shim yoksa .bat üzerinden çalıştır
-                            $bat = Join-Path $venv "Scripts\\cyclonedx-bom.bat"
-                            if (-not (Test-Path $bat)) { $bat = "cyclonedx-bom" }
-                            & $bat -o sbom.json -t requirements -i requirements.txt
+                            & $py -m cyclonedx_py requirements -o sbom.json -r requirements.txt
                         '''
                     }
                 }
