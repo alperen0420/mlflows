@@ -9,6 +9,9 @@ __pycache__/
 # ML artifacts & data managed by DVC/MLflow
 mlruns/
 garak_reports/
+giskard_reports/
+fairness_report.json
+sbom.json
 .cache/
 *.safetensors
 experiments.db*

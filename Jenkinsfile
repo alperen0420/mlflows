@@ -151,6 +151,56 @@ pipeline {
             }
         }
 
+        stage('Fairness (Fairlearn)') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            VENV="${WORKSPACE}/.venv"
+                            . "$VENV/bin/activate"
+                            python ci_fairness.py --dataset ".data/student-mat.csv" --sensitive-feature sex --output "fairness_report.json"
+                        '''
+                    } else {
+                        powershell '''
+                            $venv = Join-Path $env:WORKSPACE ".venv"
+                            $py = Join-Path $venv "Scripts\\python.exe"
+                            & $py ci_fairness.py --dataset .data\\student-mat.csv --sensitive-feature sex --output fairness_report.json
+                        '''
+                    }
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'fairness_report.json', allowEmptyArchive: true, fingerprint: true
+                }
+            }
+        }
+
+        stage('Giskard Scan') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            VENV="${WORKSPACE}/.venv"
+                            . "$VENV/bin/activate"
+                            python ci_giskard_scan.py --dataset ".data/student-mat.csv" --output-dir "giskard_reports"
+                        '''
+                    } else {
+                        powershell '''
+                            $venv = Join-Path $env:WORKSPACE ".venv"
+                            $py = Join-Path $venv "Scripts\\python.exe"
+                            & $py ci_giskard_scan.py --dataset .data\\student-mat.csv --output-dir giskard_reports
+                        '''
+                    }
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'giskard_reports/**', allowEmptyArchive: true, fingerprint: true
+                }
+            }
+        }
+
         stage('Garak Security Scan') {
             steps {
                 script {
@@ -161,7 +211,7 @@ pipeline {
                             export GARAK_RUN_DIR="${WORKSPACE}/garak_reports"
                             . "$VENV/bin/activate"
                             mkdir -p "${GARAK_RUN_DIR}"
-                            python -m garak -m huggingface:distilgpt2 -p promptinject --report_prefix scan
+                            python -m garak --target_type huggingface --target_name distilgpt2 --probes promptinject --report_prefix "${GARAK_RUN_DIR}/scan"
                         '''
                     } else {
                         powershell '''
@@ -170,7 +220,8 @@ pipeline {
                             $env:HF_HOME = Join-Path $env:WORKSPACE ".cache\\huggingface"
                             $env:GARAK_RUN_DIR = Join-Path $env:WORKSPACE "garak_reports"
                             if (-not (Test-Path $env:GARAK_RUN_DIR)) { New-Item -ItemType Directory -Path $env:GARAK_RUN_DIR | Out-Null }
-                            & $py -m garak -m huggingface:distilgpt2 -p promptinject --report_prefix scan
+                            $prefix = Join-Path $env:GARAK_RUN_DIR "scan"
+                            & $py -m garak --target_type huggingface --target_name distilgpt2 --probes promptinject --report_prefix $prefix
                         '''
                     }
                 }
@@ -219,6 +270,31 @@ pipeline {
                             }
                         '''
                     }
+                }
+            }
+        }
+
+        stage('SBOM (CycloneDX)') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            VENV="${WORKSPACE}/.venv"
+                            . "$VENV/bin/activate"
+                            cyclonedx-bom -o sbom.json -t requirements -i requirements.txt
+                        '''
+                    } else {
+                        powershell '''
+                            $venv = Join-Path $env:WORKSPACE ".venv"
+                            $exe = Join-Path $venv "Scripts\\cyclonedx-bom.exe"
+                            & $exe -o sbom.json -t requirements -i requirements.txt
+                        '''
+                    }
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'sbom.json', allowEmptyArchive: true, fingerprint: true
                 }
             }
         }
