@@ -211,7 +211,7 @@ pipeline {
                             export GARAK_RUN_DIR="${WORKSPACE}/garak_reports"
                             . "$VENV/bin/activate"
                             mkdir -p "${GARAK_RUN_DIR}"
-                            python -m garak --target_type huggingface --target_name distilgpt2 --probes promptinject --report_prefix "${GARAK_RUN_DIR}/scan"
+                            python -m garak -m huggingface:distilgpt2 -p promptinject --report_prefix "${GARAK_RUN_DIR}/scan"
                         '''
                     } else {
                         powershell '''
@@ -221,7 +221,7 @@ pipeline {
                             $env:GARAK_RUN_DIR = Join-Path $env:WORKSPACE "garak_reports"
                             if (-not (Test-Path $env:GARAK_RUN_DIR)) { New-Item -ItemType Directory -Path $env:GARAK_RUN_DIR | Out-Null }
                             $prefix = Join-Path $env:GARAK_RUN_DIR "scan"
-                            & $py -m garak --target_type huggingface --target_name distilgpt2 --probes promptinject --report_prefix $prefix
+                            & $py -m garak -m huggingface:distilgpt2 -p promptinject --report_prefix $prefix
                         '''
                     }
                 }
