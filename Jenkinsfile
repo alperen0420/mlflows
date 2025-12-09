@@ -286,8 +286,9 @@ pipeline {
                     } else {
                         powershell '''
                             $venv = Join-Path $env:WORKSPACE ".venv"
-                            $exe = Join-Path $venv "Scripts\\cyclonedx-bom.exe"
-                            & $exe -o sbom.json -t requirements -i requirements.txt
+                            $py = Join-Path $venv "Scripts\\python.exe"
+                            & $py -m pip install --upgrade cyclonedx-bom
+                            & $py -m cyclonedx_py --output sbom.json --requirements requirements.txt
                         '''
                     }
                 }
